@@ -33,12 +33,28 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, List<String>>> handleDuplicateKey(DataIntegrityViolationException ex) {
         List<String> errors = new ArrayList<>();
-        errors.add("User with this email already exists");
+        errors.add("Database constraint violated: probably duplicate key or invalid reference");
 
         Map<String, List<String>> response = new HashMap<>();
         response.put("errors", errors);
 
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, List<String>>> handleRuntimeException(RuntimeException ex) {
+        List<String> errors = new ArrayList<>();
+        errors.add(ex.getMessage());
+
+        Map<String, List<String>> response = new HashMap<>();
+        response.put("errors", errors);
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<?> handleAuthError(AuthenticationException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("errors", List.of(ex.getMessage())));
     }
 
 }

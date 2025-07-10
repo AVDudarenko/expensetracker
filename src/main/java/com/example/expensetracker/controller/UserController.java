@@ -2,9 +2,10 @@ package com.example.expensetracker.controller;
 
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.repository.UserRepository;
-import jakarta.validation.Valid;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -17,11 +18,6 @@ public class UserController {
 
     public UserController(UserRepository userRepository) {
         this.userRepository = userRepository;
-    }
-
-    @PostMapping
-    public User createUser(@RequestBody @Valid User user) {
-        return userRepository.save(user);
     }
 
     @GetMapping
