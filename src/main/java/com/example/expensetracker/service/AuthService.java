@@ -3,6 +3,7 @@ package com.example.expensetracker.service;
 import com.example.expensetracker.dto.AuthResponse;
 import com.example.expensetracker.dto.LoginRequest;
 import com.example.expensetracker.dto.RegisterRequest;
+import com.example.expensetracker.exception.AuthenticationException;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.repository.UserRepository;
 import com.example.expensetracker.security.JwtUtils;
@@ -33,7 +34,7 @@ public class AuthService {
 
         User user = new User();
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
         user.setSurname(request.getSurname());
 
@@ -46,7 +47,7 @@ public class AuthService {
     public AuthResponse login(LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail());
         if (user == null || !passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new RuntimeException("Invalid credentials");
+            throw new AuthenticationException("Invalid email or password");
         }
 
         String token = jwtUtils.generateToken(user.getEmail());
