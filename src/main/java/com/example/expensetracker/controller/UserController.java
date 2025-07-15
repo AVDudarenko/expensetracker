@@ -1,7 +1,7 @@
 package com.example.expensetracker.controller;
 
-import com.example.expensetracker.model.User;
-import com.example.expensetracker.repository.UserRepository;
+import com.example.expensetracker.dto.UserResponseDto;
+import com.example.expensetracker.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,15 +14,15 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDto> getAllUsers() {
+        return userService.getAllUsers();
     }
 
     @GetMapping("/me")
