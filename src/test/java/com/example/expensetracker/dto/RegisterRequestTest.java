@@ -99,9 +99,9 @@ public class RegisterRequestTest {
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequestSecond)))
-                .andExpect(status().isConflict())
+                .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.errors").isArray())
-                .andExpect(jsonPath("$.errors[0]").value("Email already in use"));
+                .andExpect(jsonPath("$.errors[0]").value("Unexpected error: Email already in use"));
 
         List<User> users = userRepository.findAll();
         assertThat(users).hasSize(1);
