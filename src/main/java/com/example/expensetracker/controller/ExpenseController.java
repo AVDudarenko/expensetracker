@@ -25,9 +25,16 @@ public class ExpenseController {
     }
 
     @PostMapping
-    public Expense createExpense(@Valid @RequestBody ExpenseRequestDto requestDto, Authentication authentication) {
+    public ExpenseResponseDto createExpense(@Valid @RequestBody ExpenseRequestDto requestDto, Authentication authentication) {
         String userEmail = (String) authentication.getPrincipal();
-        return expenseService.createExpense(requestDto, userEmail);
+        Expense savedExpense = expenseService.createExpense(requestDto, userEmail);
+        return new ExpenseResponseDto(
+                savedExpense.getId(),
+                savedExpense.getTitle(),
+                savedExpense.getAmount(),
+                savedExpense.getDate(),
+                savedExpense.getCategory()
+        );
     }
 
     @GetMapping("/mine")

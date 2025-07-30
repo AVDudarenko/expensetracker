@@ -47,11 +47,11 @@ public class AuthService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setName(request.getName());
         user.setSurname(request.getSurname());
-        user.setRole(Set.of(userRole));
+        user.setRoles(Set.of(userRole));
 
         userRepository.save(user);
 
-        String token = jwtUtils.generateToken(user.getEmail(), user.getRole());
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRoles());
         return new AuthResponse(token);
     }
 
@@ -62,7 +62,7 @@ public class AuthService {
             throw new AuthenticationException("Invalid email or password");
         }
 
-        String token = jwtUtils.generateToken(user.getEmail(), user.getRole());
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRoles());
         return new AuthResponse(token);
     }
 }

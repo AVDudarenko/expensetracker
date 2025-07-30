@@ -1,19 +1,26 @@
 package com.example.expensetracker.dto;
 
-public class UserResponseDto {
+import java.util.List;
+
+public class CurrentUserDto {
     private Long id;
     private String email;
     private String name;
     private String surname;
+    private List<String> roles;
 
-    public UserResponseDto() {
+    public CurrentUserDto() {
+
     }
 
-    public UserResponseDto(Long id, String email, String name, String surname) {
+    public CurrentUserDto(
+            Long id, String email, String name, String surname, List<String> roles
+    ) {
         this.id = id;
         this.email = email;
         this.name = name;
         this.surname = surname;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -48,4 +55,11 @@ public class UserResponseDto {
         this.surname = surname;
     }
 
+    public List<String> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<String> roles) {
+        this.roles = roles;
+    }
 }
