@@ -69,11 +69,11 @@ public class User {
         this.surname = surname;
     }
 
-    public Set<Role> getRole() {
+    public Set<Role> getRoles() {
         return roles;
     }
 
-    public void setRole(Set<Role> roleSet) {
+    public void setRoles(Set<Role> roleSet) {
         this.roles = roleSet;
     }
 }

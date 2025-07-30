@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .toList();
 
-        return ResponseEntity.badRequest().body(new ApiErrorResponse(errors));
+        return ResponseEntity.badRequest().body(new ApiErrorResponse(errors, HttpStatus.BAD_REQUEST.value()));
     }
 
 
@@ -34,31 +34,32 @@ public class GlobalExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .toList();
 
-        return ResponseEntity.badRequest().body(new ApiErrorResponse(errors));
+        return ResponseEntity.badRequest().body(new ApiErrorResponse(errors, HttpStatus.BAD_REQUEST.value()));
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ApiErrorResponse(List.of("Database constraint violated: probably duplicate or invalid reference")));
+                .body(new ApiErrorResponse(List.of("Database constraint violated: probably duplicate or invalid reference"), HttpStatus.CONFLICT.value()));
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiErrorResponse> handleAuthError(AuthenticationException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiErrorResponse(List.of(ex.getMessage())));
+                .body(new ApiErrorResponse(List.of(ex.getMessage()), HttpStatus.FORBIDDEN.value()));
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ApiErrorResponse(List.of(ex.getMessage())));
+                .body(new ApiErrorResponse(List.of(ex.getMessage()), HttpStatus.NOT_FOUND.value()));
     }
 
     @ExceptionHandler(Exception.class) // fallback
     public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex) {
+        ex.printStackTrace();
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiErrorResponse(List.of("Unexpected error: " + ex.getMessage())));
+                .body(new ApiErrorResponse(List.of("Unexpected error: " + ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR.value()));
     }
 
 }
