@@ -1,6 +1,7 @@
 package com.example.expensetracker.mapper;
 
 import com.example.expensetracker.dto.AdminExpenseResponseDto;
+import com.example.expensetracker.dto.ExpenseResponseDto;
 import com.example.expensetracker.model.Expense;
 
 public class ExpenseMapper {
@@ -15,5 +16,16 @@ public class ExpenseMapper {
         dto.setUserId(expense.getUser().getId());
         dto.setUserEmail(expense.getUser().getEmail());
         return dto;
+    }
+
+
+    public static ExpenseResponseDto toDto(Expense expense) {
+        return new ExpenseResponseDto(
+                expense.getId(),
+                expense.getTitle(),
+                expense.getAmount(),
+                expense.getDate(),
+                expense.getCategory()
+        );
     }
 }

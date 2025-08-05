@@ -4,6 +4,7 @@ import com.example.expensetracker.dto.CurrentUserDto;
 import com.example.expensetracker.dto.UserResponseDto;
 import com.example.expensetracker.model.User;
 import com.example.expensetracker.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,16 +23,16 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserResponseDto> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/me")
-    public CurrentUserDto getCurrentUser(Authentication authentication) {
+    public ResponseEntity<CurrentUserDto> getCurrentUser(Authentication authentication) {
         String email = authentication.getName();
         User user = userService.findByEmail(email);
 
-        return new CurrentUserDto(
+        CurrentUserDto currentUserDto = new CurrentUserDto(
                 user.getId(),
                 user.getEmail(),
                 user.getName(),
@@ -40,5 +41,7 @@ public class UserController {
                         .map(role -> role.getName().name())
                         .toList()
         );
+
+        return ResponseEntity.ok(currentUserDto);
     }
 }
