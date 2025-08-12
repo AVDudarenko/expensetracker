@@ -1,5 +1,6 @@
 package com.example.expensetracker.controller;
 
+import com.example.expensetracker.common.ApiResponse;
 import com.example.expensetracker.dto.CurrentUserDto;
 import com.example.expensetracker.dto.UserResponseDto;
 import com.example.expensetracker.model.User;
@@ -23,12 +24,13 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserResponseDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+    public ResponseEntity<ApiResponse<List<UserResponseDto>>> getAllUsers() {
+        List<UserResponseDto> all = userService.getAllUsers();
+        return ResponseEntity.ok(ApiResponse.success("user.list", all));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<CurrentUserDto> getCurrentUser(Authentication authentication) {
+    public ResponseEntity<ApiResponse<CurrentUserDto>> getCurrentUser(Authentication authentication) {
         String email = authentication.getName();
         User user = userService.findByEmail(email);
 
@@ -42,6 +44,6 @@ public class UserController {
                         .toList()
         );
 
-        return ResponseEntity.ok(currentUserDto);
+        return ResponseEntity.ok(ApiResponse.success("user.me", currentUserDto));
     }
 }

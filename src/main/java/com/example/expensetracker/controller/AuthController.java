@@ -1,5 +1,6 @@
 package com.example.expensetracker.controller;
 
+import com.example.expensetracker.common.ApiResponse;
 import com.example.expensetracker.dto.AuthResponse;
 import com.example.expensetracker.dto.LoginRequest;
 import com.example.expensetracker.dto.RegisterRequest;
@@ -22,13 +23,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
-        return ResponseEntity.status(201).body(authService.register(request));
+    public ResponseEntity<ApiResponse<AuthResponse>> register(@Valid @RequestBody RegisterRequest request) {
+        AuthResponse payload = authService.register(request);
+        return ResponseEntity.status(201).body(ApiResponse.success("auth.registered", payload));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request) {
+        AuthResponse payload = authService.login(request);
+        return ResponseEntity.ok(ApiResponse.success("auth.logged_in", payload));
     }
 
 }
