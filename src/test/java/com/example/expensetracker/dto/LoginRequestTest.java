@@ -43,7 +43,7 @@ public class LoginRequestTest {
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("testlogin@example.com");
@@ -67,7 +67,7 @@ public class LoginRequestTest {
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setEmail("badlogin@example.com");

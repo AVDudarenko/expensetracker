@@ -2,6 +2,8 @@ package com.example.expensetracker.exception;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +18,8 @@ import java.util.List;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiErrorResponse> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<String> errors = ex.getBindingResult()
@@ -24,7 +28,14 @@ public class GlobalExceptionHandler {
                 .map(FieldError::getDefaultMessage)
                 .toList();
 
-        return ResponseEntity.badRequest().body(new ApiErrorResponse(errors, HttpStatus.BAD_REQUEST.value()));
+        ApiErrorResponse body = new ApiErrorResponse(
+                "ERR_VALIDATION",
+                "Validation failed",
+                HttpStatus.BAD_REQUEST.value(),
+                errors
+        );
+
+        return ResponseEntity.badRequest().body(body);
     }
 
 
@@ -35,38 +46,80 @@ public class GlobalExceptionHandler {
                 .map(ConstraintViolation::getMessage)
                 .toList();
 
-        return ResponseEntity.badRequest().body(new ApiErrorResponse(errors, HttpStatus.BAD_REQUEST.value()));
+        ApiErrorResponse body = new ApiErrorResponse(
+                "ERR_VALIDATION",
+                "Validation failed",
+                HttpStatus.BAD_REQUEST.value(),
+                errors
+        );
+
+        return ResponseEntity.badRequest().body(body);
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ApiErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+        log.warn("Data integrity violation", ex);
+        ApiErrorResponse body = new ApiErrorResponse(
+                "ERROR_CONFLICT",
+                "Data integrity violation",
+                HttpStatus.CONFLICT.value(),
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(new ApiErrorResponse(List.of("Database constraint violated: probably duplicate or invalid reference"), HttpStatus.CONFLICT.value()));
+                .body(body);
     }
 
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiErrorResponse> handleAuthError(AuthenticationException ex) {
+        ApiErrorResponse body = new ApiErrorResponse(
+                "ERROR_AUTH",
+                ex.getMessage() != null ? ex.getMessage() : "Authentication error",
+                HttpStatus.FORBIDDEN.value(),
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiErrorResponse(List.of(ex.getMessage()), HttpStatus.FORBIDDEN.value()));
+                .body(body);
     }
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleNotFound(NotFoundException ex) {
+        ApiErrorResponse body = new ApiErrorResponse(
+                "ERROR_NOT_FOUND",
+                ex.getMessage() != null ? ex.getMessage() : "Resource not found",
+                HttpStatus.NOT_FOUND.value(),
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(new ApiErrorResponse(List.of(ex.getMessage()), HttpStatus.NOT_FOUND.value()));
+                .body(body);
     }
 
     @ExceptionHandler(Exception.class) // fallback
     public ResponseEntity<ApiErrorResponse> handleGeneric(Exception ex) {
-        ex.printStackTrace();
+        log.error("Unexpected error", ex);
+        ApiErrorResponse body = new ApiErrorResponse(
+                "ERROR_INTERNAL",
+                "Unexpected error",
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                List.of()
+        );
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiErrorResponse(List.of("Unexpected error: " + ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR.value()));
+                .body(body);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ApiErrorResponse> handleAccessDenied(AccessDeniedException exception) {
+        ApiErrorResponse body = new ApiErrorResponse(
+                "ERROR_FORBIDDEN",
+                "Access denied",
+                HttpStatus.FORBIDDEN.value(),
+                List.of()
+        );
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiErrorResponse(List.of(exception.getMessage()), HttpStatus.FORBIDDEN.value()));
+                .body(body);
     }
 
 }

@@ -12,6 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -52,9 +53,9 @@ public class RegisterRequestTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").exists());
 
-        User saved = userRepository.findByEmail("test@example.com");
+        Optional<User> saved = userRepository.findByEmail("test@example.com");
         assertThat(saved).isNotNull();
-        assertThat(saved.getName()).isEqualTo("Alex");
+        assertThat(saved.get().getName()).isEqualTo("Alex");
     }
 
     @Test

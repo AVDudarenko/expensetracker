@@ -43,7 +43,7 @@ public class ExpenseService {
         expense.setTitle(requestDto.getTitle());
         expense.setAmount(requestDto.getAmount());
         expense.setCategory(requestDto.getCategory());
-        expense.setDate(requestDto.getDate());
+        expense.setDate(requestDto.getDate() != null ? requestDto.getDate() : LocalDate.now());
         expense.setUser(currentUser);
 
         expenseRepository.save(expense);
@@ -60,10 +60,43 @@ public class ExpenseService {
                 .toList();
     }
 
+    public Page<ExpenseResponseDto> getMyExpenses(String category,
+                                                  LocalDate fromDate,
+                                                  LocalDate toDate,
+                                                  Pageable pageable) {
+        User currentUser = currentUserService.getCurrentUser();
+
+        Specification<Expense> spec = (root, query, cb) -> cb.equal(root.get("user"), currentUser);
+
+        if (category != null) {
+            spec = spec.and((root, query, cb) -> cb.equal(root.get("category"), category));
+        }
+        if (fromDate != null) {
+            spec = spec.and((root, query, cb) -> cb.greaterThanOrEqualTo(root.get("date"), fromDate));
+        }
+        if (toDate != null) {
+            spec = spec.and((root, query, cb) -> cb.lessThanOrEqualTo(root.get("date"), toDate));
+        }
+
+        return expenseRepository.findAll(spec, pageable).map(ExpenseMapper::toDto);
+    }
+
+    public ExpenseResponseDto getExpenseById(Long id) {
+        User currentUser = currentUserService.getCurrentUser();
+        Expense expense = expenseRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Expense not found"));
+        accessService.checkExpenseAccess(expense, currentUser);
+        return toDto(expense);
+    }
+
     public List<AdminExpenseResponseDto> getAllExpensesForAdmin() {
         return expenseRepository.findAll().stream()
                 .map(ExpenseMapper::toAdminDto)
                 .toList();
+    }
+
+    public Page<AdminExpenseResponseDto> getAllExpensesForAdmin(Pageable pageable) {
+        return expenseRepository.findAll(pageable).map(ExpenseMapper::toAdminDto);
     }
 
     public Page<AdminExpenseResponseDto> getAllExpensesForAdmin(
@@ -103,7 +136,7 @@ public class ExpenseService {
         expense.setTitle(expenseRequestDto.getTitle());
         expense.setAmount(expenseRequestDto.getAmount());
         expense.setCategory(expenseRequestDto.getCategory());
-        expense.setDate(expenseRequestDto.getDate());
+        expense.setDate(expenseRequestDto.getDate() != null ? expenseRequestDto.getDate() : expense.getDate());
 
         expenseRepository.save(expense);
 
